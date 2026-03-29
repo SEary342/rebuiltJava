@@ -4,46 +4,60 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CANFuelSubsystem;
 import static frc.robot.Constants.FuelConstants.*;
 
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
+import java.util.function.DoubleSupplier;
+
 public class SpinUp extends Command {
-  /** Creates a new Intake. */
 
-  CANFuelSubsystem fuelSubsystem;
+  private final CANFuelSubsystem fuelSubsystem;
+  private final DoubleSupplier rpmSupplier;
 
-  public SpinUp(CANFuelSubsystem fuelSystem) {
-    addRequirements(fuelSystem);
+  /**
+   * SpinUp command that uses a dynamic RPM.
+   * @param fuelSystem The subsystem.
+   * @param rpmSupplier A supplier for the target RPM.
+   */
+  public SpinUp(CANFuelSubsystem fuelSystem, DoubleSupplier rpmSupplier) {
     this.fuelSubsystem = fuelSystem;
+    this.rpmSupplier = rpmSupplier;
+    addRequirements(fuelSystem);
   }
 
-  // Called when the command is initially scheduled. Set the rollers to the
-  // appropriate values for intaking
+  /**
+   * SpinUp command that uses the default RPM.
+   */
+  public SpinUp(CANFuelSubsystem fuelSystem) {
+    this(fuelSystem, () -> kDefaultRPM);
+  }
+
   @Override
   public void initialize() {
-    fuelSubsystem
-        .setIntakeLauncherRoller(
-            SmartDashboard.getNumber("Launching launcher roller value", LAUNCHING_LAUNCHER_PERCENT));
-    fuelSubsystem.setFeederRoller(SmartDashboard.getNumber("Launching spin-up feeder value", INDEXER_SPIN_UP_PRE_LAUNCH_PERCENT));
+    // Set launcher to target RPM
+    fuelSubsystem.setLauncherRPM(rpmSupplier.getAsDouble());
+    
+    // Set feeder roller to spin-up speed (usually negative to keep ball back)
+    fuelSubsystem.setFeederRoller(INDEXER_SPIN_UP_PRE_LAUNCH_PERCENT);
   }
 
-  // Called every time the scheduler runs while the command is scheduled. This
-  // command doesn't require updating any values while running
   @Override
   public void execute() {
+    // Continuously update target RPM
+    fuelSubsystem.setLauncherRPM(rpmSupplier.getAsDouble());
   }
 
-  // Called once the command ends or is interrupted. Stop the rollers
   @Override
   public void end(boolean interrupted) {
+    // If interrupted, we don't necessarily want to stop() 
+    // because this command is often followed by Launch
   }
 
-  // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+    // This command is meant to be used with .withTimeout() 
+    // or as part of a SequentialCommandGroup
     return false;
   }
 }

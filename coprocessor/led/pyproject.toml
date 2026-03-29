@@ -1,0 +1,10 @@
+[project]
+name = "led"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "adafruit-circuitpython-neopixel>=6.4.1",
+    "pyntcore>=2026.2.1"
+]

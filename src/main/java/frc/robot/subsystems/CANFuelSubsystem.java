@@ -8,6 +8,8 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 
@@ -21,12 +23,18 @@ public class CANFuelSubsystem extends SubsystemBase {
   private final SparkMax RightIntakeLauncher;
   private final SparkMax Indexer;
 
+  private final SparkClosedLoopController leftController;
+  private final SparkClosedLoopController rightController;
+
   /** Creates a new CANBallSubsystem. */
   public CANFuelSubsystem() {
     // create brushed motors for each of the motors on the launcher mechanism
     LeftIntakeLauncher = new SparkMax(LEFT_INTAKE_LAUNCHER_MOTOR_ID, MotorType.kBrushless);
     RightIntakeLauncher = new SparkMax(RIGHT_INTAKE_LAUNCHER_MOTOR_ID, MotorType.kBrushless);
     Indexer = new SparkMax(INDEXER_MOTOR_ID, MotorType.kBrushed);
+
+    leftController = LeftIntakeLauncher.getClosedLoopController();
+    rightController = RightIntakeLauncher.getClosedLoopController();
 
     // create the configuration for the feeder roller, set a current limit and apply
     // the config to the controller
@@ -42,28 +50,40 @@ public class CANFuelSubsystem extends SubsystemBase {
     launcherConfig.smartCurrentLimit(LAUNCHER_MOTOR_CURRENT_LIMIT);
     launcherConfig.voltageCompensation(12);
     launcherConfig.idleMode(IdleMode.kCoast);
+
+    // Configure PID for Velocity Control
+    // Note: These gains are placeholders and need to be tuned.
+    launcherConfig.closedLoop
+        .pid(0.0001, 0, 0)
+        .feedForward.kV(0.00017);
+    launcherConfig.closedLoop
+        .outputRange(-1, 1);
+
     RightIntakeLauncher.configure(launcherConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     launcherConfig.inverted(true);
     LeftIntakeLauncher.configure(launcherConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     // put default values for various fuel operations onto the dashboard
-    // all commands using this subsystem pull values from the dashbaord to allow
-    // you to tune the values easily, and then replace the values in Constants.java
-    // with your new values. For more information, see the Software Guide.
     SmartDashboard.putNumber("Intaking feeder roller value", INDEXER_INTAKING_PERCENT);
     SmartDashboard.putNumber("Intaking intake roller value", INTAKE_INTAKING_PERCENT);
     SmartDashboard.putNumber("Launching feeder roller value", INDEXER_LAUNCHING_PERCENT);
-    SmartDashboard.putNumber("Launching launcher roller value", LAUNCHING_LAUNCHER_PERCENT);
-    //SmartDashboard.putNumber("Spin-up feeder roller value", SPIN_UP_FEEDER_VOLTAGE);
+    //SmartDashboard.putNumber("Launching launcher roller value", LAUNCHING_LAUNCHER_PERCENT);
+    SmartDashboard.putNumber("Launcher/TargetRPM", kDefaultRPM);
   }
 
-  // A method to set the voltage of the intake roller
+  // A method to set the power of the intake roller (percent)
   public void setIntakeLauncherRoller(double power) {
     LeftIntakeLauncher.set(power);
-    RightIntakeLauncher.set(power); // positive for shooting
+    RightIntakeLauncher.set(power);
   }
 
-  // A method to set the voltage of the intake roller
+  // A method to set the RPM of the launcher rollers
+  public void setLauncherRPM(double rpm) {
+    leftController.setSetpoint(rpm, ControlType.kVelocity);
+    rightController.setSetpoint(rpm, ControlType.kVelocity);
+  }
+
+  // A method to set the power of the intake roller
   public void setFeederRoller(double power) {
     Indexer.set(power); // positive for shooting
   }
@@ -77,6 +97,7 @@ public class CANFuelSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    SmartDashboard.putNumber("Launcher/LeftRPM", LeftIntakeLauncher.getEncoder().getVelocity());
+    SmartDashboard.putNumber("Launcher/RightRPM", RightIntakeLauncher.getEncoder().getVelocity());
   }
 }

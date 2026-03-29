@@ -1,0 +1,13 @@
+[Unit]
+Description=Robot LED Control Service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/photon/leds
+ExecStart=/home/photon/leds/.venv/bin/python led_service.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

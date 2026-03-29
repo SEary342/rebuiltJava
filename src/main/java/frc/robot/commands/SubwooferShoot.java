@@ -8,10 +8,13 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.CANFuelSubsystem;
 
 public class SubwooferShoot extends SequentialCommandGroup {
-    public SubwooferShoot(CANFuelSubsystem ballSubsystem) {
-        // Add your commands in the addCommands() call, e.g.
-        // addCommands(new FooCommand(), new BarCommand());
+    /**
+     * Autonomous command for shooting from the subwoofer using a specific RPM.
+     * @param fuelSubsystem The subsystem.
+     */
+    public SubwooferShoot(CANFuelSubsystem fuelSubsystem) {
+        // Shooting from subwoofer usually uses a fixed, calibrated RPM (3500)
         addCommands(
-                new LaunchSequence(ballSubsystem).withTimeout(10));
+                new LaunchSequence(fuelSubsystem, () -> 3500).withTimeout(10));
     }
 }

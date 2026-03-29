@@ -8,16 +8,24 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.FuelConstants;
 import frc.robot.subsystems.CANFuelSubsystem;
 
-// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
+import java.util.function.DoubleSupplier;
+
 public class LaunchSequence extends SequentialCommandGroup {
-  /** Creates a new LaunchSequence. */
-  public LaunchSequence(CANFuelSubsystem fuelSubsystem) {
-    // Add your commands in the addCommands() call, e.g.
-    // addCommands(new FooCommand(), new BarCommand());
+  /** 
+   * LaunchSequence with a dynamic RPM.
+   * @param fuelSubsystem The subsystem.
+   * @param rpmSupplier A supplier for the target RPM.
+   */
+  public LaunchSequence(CANFuelSubsystem fuelSubsystem, DoubleSupplier rpmSupplier) {
     addCommands(
-        new SpinUp(fuelSubsystem).withTimeout(FuelConstants.SPIN_UP_SECONDS),
-        new Launch(fuelSubsystem));
+        new SpinUp(fuelSubsystem, rpmSupplier).withTimeout(FuelConstants.SPIN_UP_SECONDS),
+        new Launch(fuelSubsystem, rpmSupplier));
+  }
+
+  /**
+   * LaunchSequence with default RPM.
+   */
+  public LaunchSequence(CANFuelSubsystem fuelSubsystem) {
+    this(fuelSubsystem, () -> FuelConstants.kDefaultRPM);
   }
 }

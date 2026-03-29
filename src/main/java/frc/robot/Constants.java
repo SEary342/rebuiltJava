@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.stream.IntStream;
+
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -95,6 +97,51 @@ public final class Constants {
     public static final double INTAKE_EJECT_PERCENT = -0.8;
 
     public static final double SPIN_UP_SECONDS = 0.75;
+
+    public static final double kDefaultRPM = 3500;
+    public static final double kMaxRPM = 5500;
+  }
+
+  public static final class VisionConstants {
+    public static final String kCameraName = "Arducam_OV9281_USB_Camera";
+
+    // Camera position relative to robot center (meters)
+    public static final double kCameraXOffset = 0.25; // Example: 25cm forward from center
+    public static final double kCameraYOffset = 0.0;
+    public static final double kCameraZOffset = 0.5; // Example: 50cm above ground
+
+    // Camera mounting angle (radians)
+    // 80 degrees mounting plate (10 degrees off horizontal, pointing up)
+    public static final double kCameraPitch = Units.degreesToRadians(10);
+    public static final double kCameraYaw = 0.0;
+    public static final double kCameraRoll = 0.0;
+
+    // Target height (meters)
+    public static final double kTargetHeight = 1.83;
+  }
+
+  public static final class TargetConstants {
+    public static final int[] RED_TARGETS = { 8, 5, 9, 10, 11, 2 };
+    public static final int[] BLUE_TARGETS = { 18, 27, 26, 255, 21, 24 };
+
+    // Merges both arrays into a single constant
+    public static final int[] ALL_TARGETS = IntStream.concat(
+        IntStream.of(RED_TARGETS),
+        IntStream.of(BLUE_TARGETS)).toArray();
+
+    // RPM Lookup Table: {Distance in Meters, Launcher RPM}
+    // This will be calibrated on the final robot.
+    public static final double[][] kRPMTable = {
+        {0.5, 1500},
+        {1.0, 2000},
+        {1.5, 2500},
+        {2.0, 3000},
+        {2.5, 3500},
+        {3.0, 4000},
+        {3.5, 4500},
+        {4.0, 5000},
+        {4.5, 5500},
+    };
   }
 
   public static final class ClimbConstatns {
