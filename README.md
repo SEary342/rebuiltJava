@@ -1,12 +1,12 @@
-# FRC Robot 2026 - Java Overhaul
+# Team 9721 FRC Robot 2026 - Java
 
-This repository contains the Java-based command-oriented robot code for the 2026 FRC season, ported from a previous Python (Robotpy) implementation.
+This repository contains the Java-based command-oriented robot code for the 2026 FRC season, ported from the previous Python (Robotpy) implementation.
 
 ## 🎮 Controller Layout (Logitech F310)
 
 The robot is controlled using two Logitech F310 controllers (Driver and Operator). Both controllers share core mechanism controls, while the Driver has exclusive access to drivetrain operations.
 
-![Controller Layout](Controller.png)
+![Controller Layout](Controls.png)
 
 ### Core Mechanism Controls (Shared)
 | Input | Action |
