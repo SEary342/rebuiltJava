@@ -12,10 +12,10 @@
 [x] Implement robot container controls (Dynamic Vision RPM, Manual Default 3500, Manual Max 5500)
 [x] Logitech F310 Controller layout updated in RobotContainer
 
-## PathPlanner (Wait and do not proceed to this yet)
-[ ] PathPlanner Install
-[ ] Gyro Integration
-[ ] Old Python Gyro access
+## PathPlanner
+[x] PathPlanner Install
+[x] Gyro Integration
+[x] Old Python Gyro access
     self.sensehat_table = self.inst.getTable("SenseHat")
     self.gyro_yaw_entry = self.sensehat_table.getDoubleTopic("yaw").getEntry(0.0)
-[ ] NamedCommands
+[x] NamedCommands

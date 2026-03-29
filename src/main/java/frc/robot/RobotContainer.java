@@ -27,6 +27,9 @@ import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+
 /**
  * This class is where the bulk of the robot should be declared. Since
  * Command-based is a "declarative" paradigm, very little robot logic should
@@ -55,16 +58,24 @@ public class RobotContainer {
   private final CommandXboxController[] controllers = { driverController, operatorController };
 
   // The autonomous chooser
-  private final SendableChooser<Command> autoChooser = new SendableChooser<>();
+  private final SendableChooser<Command> autoChooser;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    // Register Named Commands
+    NamedCommands.registerCommand("SubwooferShoot", new SubwooferShoot(fuelSubsystem));
+    NamedCommands.registerCommand("Intake", new Intake(fuelSubsystem));
+    NamedCommands.registerCommand("Eject", new Eject(fuelSubsystem));
+    NamedCommands.registerCommand("AimAtTarget", new AimAtTarget(driveSubsystem, visionSubsystem));
+    NamedCommands.registerCommand("LaunchSequence", new LaunchSequence(fuelSubsystem, this::getTargetRPM));
+
     configureBindings();
 
     // Set the options to show up in the Dashboard for selecting auto modes.
-    autoChooser.setDefaultOption("Shoot", new SubwooferShoot(fuelSubsystem));
+    autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
   /**
