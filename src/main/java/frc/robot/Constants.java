@@ -79,9 +79,10 @@ public final class Constants {
 
   public static final class FuelConstants {
     // Motor controller IDs for Fuel Mechanism motors
-    public static final int LEFT_INTAKE_LAUNCHER_MOTOR_ID = 5;
-    public static final int RIGHT_INTAKE_LAUNCHER_MOTOR_ID = 6;
-    public static final int INDEXER_MOTOR_ID = 8;
+    // TODO change the motor ids on the superstructure
+    public static final int LEFT_INTAKE_LAUNCHER_MOTOR_ID = 15;
+    public static final int RIGHT_INTAKE_LAUNCHER_MOTOR_ID = 16;
+    public static final int INDEXER_MOTOR_ID = 18;
 
     // Current limit for fuel mechanism motors.
     public static final int INDEXER_MOTOR_CURRENT_LIMIT = 80;
