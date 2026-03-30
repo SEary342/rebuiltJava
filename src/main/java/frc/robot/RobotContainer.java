@@ -83,9 +83,9 @@ public class RobotContainer {
    */
   private double getTargetRPM() {
     if (isVisionRPMEnabled) {
-        return visionSubsystem.getLauncherRPM(visionSubsystem.getBestTarget());
+      return visionSubsystem.getLauncherRPM(visionSubsystem.getBestTarget());
     } else {
-        return TargetConstants.kRPMTable[manualRPMIndex][1];
+      return TargetConstants.kRPMTable[manualRPMIndex][1];
     }
   }
 
@@ -115,13 +115,13 @@ public class RobotContainer {
     for (CommandXboxController controller : controllers) {
       // While the left bumper is held, intake Fuel
       controller.leftBumper().whileTrue(new Intake(fuelSubsystem));
-      
+
       // While the A button is held, eject fuel back out the intake
       controller.a().whileTrue(new Eject(fuelSubsystem));
-      
+
       // While the down arrow on the directional pad is held it will unclimb the robot
       controller.povDown().whileTrue(new ClimbDown(climberSubsystem));
-      
+
       // While the up arrow on the directional pad is held it will cimb the robot
       controller.povUp().whileTrue(new ClimbUp(climberSubsystem));
 
@@ -130,8 +130,8 @@ public class RobotContainer {
 
       // Y Button: Toggle between Vision-calculated RPM and Manual RPM
       controller.y().onTrue(new InstantCommand(() -> {
-          isVisionRPMEnabled = !isVisionRPMEnabled;
-          updateLauncherDashboard();
+        isVisionRPMEnabled = !isVisionRPMEnabled;
+        updateLauncherDashboard();
       }));
 
       // POV Left/Right: Cycle through manual RPM lookup table values
@@ -140,19 +140,19 @@ public class RobotContainer {
     }
 
     // --- Driver Specific Bindings (Logitech F310) ---
-    
+
     // X Button: Aim at target (rotate robot)
     driverController.x().whileTrue(new AimAtTarget(driveSubsystem, visionSubsystem));
 
     // Left Trigger: Parking Brakes (Set modules to X)
     driverController.leftTrigger().whileTrue(new RunCommand(
-            () -> driveSubsystem.setX(),
-            driveSubsystem));
-            
+        () -> driveSubsystem.setX(),
+        driveSubsystem));
+
     // Start Button: Zero out Gyro
     driverController.start().onTrue(new InstantCommand(
-            () -> driveSubsystem.zeroHeading(),
-            driveSubsystem));
+        () -> driveSubsystem.zeroHeading(),
+        driveSubsystem));
 
     // --- Default Commands ---
 
@@ -179,5 +179,9 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoChooser.getSelected();
+  }
+
+  public DriveSubsystem getDriveSubsystem() {
+    return driveSubsystem;
   }
 }

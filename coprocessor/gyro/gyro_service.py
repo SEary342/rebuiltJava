@@ -55,20 +55,15 @@ def run_service():
                 ws_vars.Accel[0],
                 ws_vars.Accel[1],
                 ws_vars.Accel[2],
-                ws_vars.Mag[0],
-                ws_vars.Mag[1],
-                ws_vars.Mag[2],
+                0 ,0, 0
             )
 
             # Calculate Yaw for PathPlanner (-180 to 180 degrees)
             # This uses the Quaternions (q0-q3) updated by the AHRS filter
-            yaw = (
-                math.atan2(
-                    -2 * ws_vars.q1 * ws_vars.q2 - 2 * ws_vars.q0 * ws_vars.q3,
-                    2 * ws_vars.q2 * ws_vars.q2 + 2 * ws_vars.q3 * ws_vars.q3 - 1,
-                )
-                * 57.3
-            )
+            yaw = math.atan2(
+                2 * (ws_vars.q1 * ws_vars.q2 + ws_vars.q0 * ws_vars.q3),
+                ws_vars.q0 * ws_vars.q0 + ws_vars.q1 * ws_vars.q1 - ws_vars.q2 * ws_vars.q2 - ws_vars.q3 * ws_vars.q3
+            ) * (180.0 / math.pi)
 
             # 3. Send to RoboRIO
             yaw_pub.set(yaw)

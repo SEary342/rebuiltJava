@@ -153,7 +153,7 @@ public class DriveSubsystem extends SubsystemBase {
     var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
         fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
-                Rotation2d.fromDegrees(m_yawEntry.get()))
+                getPose().getRotation())
             : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
     SwerveDriveKinematics.desaturateWheelSpeeds(
         swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
@@ -222,7 +222,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   /** Zeroes the heading of the robot. */
   public void zeroHeading() {
-    // Note: This only zeroes the internal odometry rotation, 
+    // Note: This only zeroes the internal odometry rotation,
     // it doesn't reset the physical gyro on the Pi.
     resetOdometry(new Pose2d(getPose().getTranslation(), new Rotation2d()));
   }
@@ -233,7 +233,7 @@ public class DriveSubsystem extends SubsystemBase {
    * @return the robot's heading in degrees, from -180 to 180
    */
   public double getHeading() {
-    return Rotation2d.fromDegrees(m_yawEntry.get()).getDegrees();
+    return getPose().getRotation().getDegrees();
   }
 
   /**
