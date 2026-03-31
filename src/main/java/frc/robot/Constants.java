@@ -163,7 +163,8 @@ public final class Constants {
     public static final int DRIVER_CONTROLLER_PORT = 0;
     public static final int OPERATOR_CONTROLLER_PORT = 1;
     public static final double kDriveDeadband = 0.05;
-    public static final double SLEW_RATE = 3.0;
+    public static final double XY_SLEW_RATE = 15.0;
+    public static final double ROT_SLEW_RATE = 28.0;
   }
 
   public static final class AutoConstants {
