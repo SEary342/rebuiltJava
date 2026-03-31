@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -56,6 +57,10 @@ public class RobotContainer {
   private final CommandXboxController operatorController = new CommandXboxController(
       OPERATOR_CONTROLLER_PORT);
   private final CommandXboxController[] controllers = { driverController, operatorController };
+
+  private final SlewRateLimiter xLimiter = new SlewRateLimiter(SLEW_RATE);
+  private final SlewRateLimiter yLimiter = new SlewRateLimiter(SLEW_RATE);
+  private final SlewRateLimiter rotLimiter = new SlewRateLimiter(SLEW_RATE);
 
   // The autonomous chooser
   private final SendableChooser<Command> autoChooser;
@@ -158,9 +163,13 @@ public class RobotContainer {
 
     driveSubsystem.setDefaultCommand(new RunCommand(
         () -> driveSubsystem.drive(
-            -MathUtil.applyDeadband(driverController.getLeftY(), OperatorConstants.kDriveDeadband),
-            -MathUtil.applyDeadband(driverController.getLeftX(), OperatorConstants.kDriveDeadband),
-            -MathUtil.applyDeadband(driverController.getRightX(), OperatorConstants.kDriveDeadband),
+            // Forward/Backward
+            yLimiter.calculate(-MathUtil.applyDeadband(driverController.getLeftY(), OperatorConstants.kDriveDeadband)),
+            // Left/Right Strafe
+            xLimiter.calculate(-MathUtil.applyDeadband(driverController.getLeftX(), OperatorConstants.kDriveDeadband)),
+            // Rotation
+            rotLimiter
+                .calculate(-MathUtil.applyDeadband(driverController.getRightX(), OperatorConstants.kDriveDeadband)),
             true),
         driveSubsystem));
 
