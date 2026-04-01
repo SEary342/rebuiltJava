@@ -79,7 +79,7 @@ public class RobotContainer {
     configureBindings();
 
     // Set the options to show up in the Dashboard for selecting auto modes.
-    autoChooser = AutoBuilder.buildAutoChooser();
+    autoChooser = AutoBuilder.buildAutoChooser("AutoStart");
     SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
