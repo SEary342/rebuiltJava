@@ -150,7 +150,7 @@ public class RobotContainer {
     driverController.x().whileTrue(new AimAtTarget(driveSubsystem, visionSubsystem));
 
     // Left Trigger: Parking Brakes (Set modules to X)
-    driverController.leftTrigger().whileTrue(new RunCommand(
+    driverController.b().whileTrue(new RunCommand(
         () -> driveSubsystem.setX(),
         driveSubsystem));
 
@@ -162,15 +162,36 @@ public class RobotContainer {
     // --- Default Commands ---
 
     driveSubsystem.setDefaultCommand(new RunCommand(
-        () -> driveSubsystem.drive(
-            // Forward/Backward
-            yLimiter.calculate(-MathUtil.applyDeadband(driverController.getLeftY(), OperatorConstants.kDriveDeadband)),
-            // Left/Right Strafe
-            xLimiter.calculate(-MathUtil.applyDeadband(driverController.getLeftX(), OperatorConstants.kDriveDeadband)),
-            // Rotation
-            rotLimiter
-                .calculate(-MathUtil.applyDeadband(driverController.getRightX(), OperatorConstants.kDriveDeadband)),
-            true),
+        () -> {
+          // --- 1. GET & DEADBAND ---
+          double yInput = -MathUtil.applyDeadband(driverController.getLeftY(), OperatorConstants.kDriveDeadband);
+          double xInput = -MathUtil.applyDeadband(driverController.getLeftX(), OperatorConstants.kDriveDeadband);
+          double rotInput = -MathUtil.applyDeadband(driverController.getRightX(), OperatorConstants.kDriveDeadband);
+
+          // --- 2. SQUARE THE INPUTS ---
+          // Math.copySign preserves the direction (+ or -) after squaring
+          yInput = Math.copySign(yInput * yInput, yInput);
+          xInput = Math.copySign(xInput * xInput, xInput);
+          rotInput = Math.copySign(rotInput * rotInput, rotInput);
+
+          // --- 3. APPLY SPEED LIMIT ---
+          yInput *= SPEED_LIMIT;
+          xInput *= SPEED_LIMIT;
+          rotInput *= SPEED_LIMIT;
+
+          // --- 4. TRIGGER SLOW TURN ---
+          double slowTurn = (driverController.getLeftTriggerAxis() - driverController.getRightTriggerAxis())
+              * TURN_SPEED_LIMIT;
+          double combinedRot = MathUtil.clamp(rotInput + slowTurn, -1.0, 1.0);
+
+          // --- 5. LIMIT & DRIVE ---
+          // Try Slew Rates between 1.5 and 2.5 now that inputs are squared
+          driveSubsystem.drive(
+              yLimiter.calculate(yInput),
+              xLimiter.calculate(xInput),
+              rotLimiter.calculate(combinedRot),
+              true);
+        },
         driveSubsystem));
 
     fuelSubsystem.setDefaultCommand(fuelSubsystem.run(() -> fuelSubsystem.stop()));

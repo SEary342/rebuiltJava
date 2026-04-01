@@ -123,7 +123,7 @@ public final class Constants {
 
   public static final class TargetConstants {
     public static final int[] RED_TARGETS = { 8, 5, 9, 10, 11, 2 };
-    public static final int[] BLUE_TARGETS = { 18, 27, 26, 255, 21, 24 };
+    public static final int[] BLUE_TARGETS = { 18, 27, 26, 25, 21, 24 };
 
     // Merges both arrays into a single constant
     public static final int[] ALL_TARGETS = IntStream.concat(
@@ -162,9 +162,11 @@ public final class Constants {
     // values in the Joystick tab of the Driver Station software
     public static final int DRIVER_CONTROLLER_PORT = 0;
     public static final int OPERATOR_CONTROLLER_PORT = 1;
-    public static final double kDriveDeadband = 0.05;
-    public static final double XY_SLEW_RATE = 15.0;
-    public static final double ROT_SLEW_RATE = 28.0;
+    public static final double kDriveDeadband = 0.1;
+    public static final double XY_SLEW_RATE = 3.0;
+    public static final double ROT_SLEW_RATE = 5.0;
+    public static final double SPEED_LIMIT = 0.7;
+    public static final double TURN_SPEED_LIMIT = 0.1;
   }
 
   public static final class AutoConstants {
