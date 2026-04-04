@@ -5,13 +5,13 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import static frc.robot.Constants.OperatorConstants.*;
 
 import frc.robot.Constants.OperatorConstants;
@@ -26,6 +26,7 @@ import frc.robot.commands.SubwooferShoot;
 import frc.robot.subsystems.CANFuelSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.InputSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -41,6 +42,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 public class RobotContainer {
   // The robot's subsystems
   private final DriveSubsystem driveSubsystem = new DriveSubsystem();
+  private final InputSubsystem inputSubsystem = new InputSubsystem(driveSubsystem);
   private final CANFuelSubsystem fuelSubsystem = new CANFuelSubsystem();
   private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
   private final VisionSubsystem visionSubsystem = new VisionSubsystem();
@@ -53,14 +55,14 @@ public class RobotContainer {
   private final CommandXboxController driverController = new CommandXboxController(
       DRIVER_CONTROLLER_PORT);
 
+  // The flight joystick
+  private final CommandJoystick flightJoystick = new CommandJoystick(
+      FLIGHT_JOYSTICK_PORT);
+
   // The operator's controller
   private final CommandXboxController operatorController = new CommandXboxController(
       OPERATOR_CONTROLLER_PORT);
   private final CommandXboxController[] controllers = { driverController, operatorController };
-
-  private final SlewRateLimiter xLimiter = new SlewRateLimiter(XY_SLEW_RATE);
-  private final SlewRateLimiter yLimiter = new SlewRateLimiter(XY_SLEW_RATE);
-  private final SlewRateLimiter rotLimiter = new SlewRateLimiter(ROT_SLEW_RATE);
 
   // The autonomous chooser
   private final SendableChooser<Command> autoChooser;
@@ -113,6 +115,17 @@ public class RobotContainer {
   }
 
   /**
+   * Helper to combine multiple joystick inputs by summing them.
+   */
+  private double combine(double... inputs) {
+    double total = 0;
+    for (double input : inputs) {
+      total += input;
+    }
+    return MathUtil.clamp(total, -1.0, 1.0);
+  }
+
+  /**
    * Use this method to define your trigger->command mappings.
    */
   private void configureBindings() {
@@ -144,53 +157,56 @@ public class RobotContainer {
       controller.povRight().onTrue(new InstantCommand(() -> changeManualRPM(1)));
     }
 
-    // --- Driver Specific Bindings (Logitech F310) ---
+    // --- Driver Specific Bindings (Xbox + Flight Stick) ---
 
-    // X Button: Aim at target (rotate robot)
+    // X Button / Button 3: Aim at target (rotate robot)
     driverController.x().whileTrue(new AimAtTarget(driveSubsystem, visionSubsystem));
+    flightJoystick.button(3).whileTrue(new AimAtTarget(driveSubsystem, visionSubsystem));
 
-    // Left Trigger: Parking Brakes (Set modules to X)
+    // Left Trigger / Button 1 (Trigger): Slow Mode (Precision alignment)
+    driverController.leftTrigger()
+        .whileTrue(new RunCommand(() -> inputSubsystem.setSlowMode(true)))
+        .onFalse(new InstantCommand(() -> inputSubsystem.setSlowMode(false)));
+    
+    flightJoystick.button(1)
+        .whileTrue(new RunCommand(() -> inputSubsystem.setSlowMode(true)))
+        .onFalse(new InstantCommand(() -> inputSubsystem.setSlowMode(false)));
+
+    // B Button / Button 2: Parking Brakes (Set modules to X)
     driverController.b().whileTrue(new RunCommand(
         () -> driveSubsystem.setX(),
         driveSubsystem));
+    flightJoystick.button(2).whileTrue(new RunCommand(
+        () -> driveSubsystem.setX(),
+        driveSubsystem));
 
-    // Start Button: Zero out Gyro
+    // Start Button / Button 7: Zero out Gyro
     driverController.start().onTrue(new InstantCommand(
+        () -> driveSubsystem.zeroHeading(),
+        driveSubsystem));
+    flightJoystick.button(7).onTrue(new InstantCommand(
         () -> driveSubsystem.zeroHeading(),
         driveSubsystem));
 
     // --- Default Commands ---
 
+    // Set initial coefficients for Teleop
+    inputSubsystem.setCoefficients(OperatorConstants.SPEED_LIMIT, OperatorConstants.TURN_SPEED_LIMIT);
+
     driveSubsystem.setDefaultCommand(new RunCommand(
         () -> {
-          // --- 1. GET & DEADBAND ---
-          double yInput = -MathUtil.applyDeadband(driverController.getLeftY(), OperatorConstants.kDriveDeadband);
-          double xInput = -MathUtil.applyDeadband(driverController.getLeftX(), OperatorConstants.kDriveDeadband);
-          double rotInput = -MathUtil.applyDeadband(driverController.getRightX(), OperatorConstants.kDriveDeadband);
+          // Update inputs by combining Xbox and Flight Stick
+          // Xbox: Y is forward(-), X is left(-)
+          // Flight: Y is forward(-), X is right(+), Twist(Z) is rotation
+          inputSubsystem.updateInputs(
+              combine(-driverController.getLeftY(), -flightJoystick.getY()),
+              combine(-driverController.getLeftX(), flightJoystick.getX()),
+              combine(-driverController.getRightX(), flightJoystick.getZ()));
 
-          // --- 2. SQUARE THE INPUTS ---
-          // Math.copySign preserves the direction (+ or -) after squaring
-          yInput = Math.copySign(yInput * yInput, yInput);
-          xInput = Math.copySign(xInput * xInput, xInput);
-          rotInput = Math.copySign(rotInput * rotInput, rotInput);
-
-          // --- 3. APPLY SPEED LIMIT ---
-          yInput *= SPEED_LIMIT;
-          xInput *= SPEED_LIMIT;
-          rotInput *= SPEED_LIMIT;
-
-          // --- 4. TRIGGER SLOW TURN ---
-          double slowTurn = (driverController.getLeftTriggerAxis() - driverController.getRightTriggerAxis())
-              * TURN_SPEED_LIMIT;
-          double combinedRot = MathUtil.clamp(rotInput + slowTurn, -1.0, 1.0);
-
-          // --- 5. LIMIT & DRIVE ---
-          // Try Slew Rates between 1.5 and 2.5 now that inputs are squared
+          // Drive the robot
           driveSubsystem.drive(
-              yLimiter.calculate(yInput),
-              xLimiter.calculate(xInput),
-              rotLimiter.calculate(combinedRot),
-              true);
+              inputSubsystem.getChassisSpeeds(),
+              inputSubsystem.isFieldRelative());
         },
         driveSubsystem));
 

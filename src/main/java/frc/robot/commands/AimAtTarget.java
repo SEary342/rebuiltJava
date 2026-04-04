@@ -15,7 +15,7 @@ public class AimAtTarget extends Command {
     private final PIDController m_turnController = new PIDController(0.02, 0, 0.003); 
 
     // 2. Search speed: 5% is usually the minimum to move a robot on carpet
-    private final double SEARCH_ROTATION_SPEED = 0.05; 
+    private final double SEARCH_ROTATION_SPEED = 0.01; 
     private final double MAX_ROTATION_SPEED = 0.08; // Safety cap
 
     public AimAtTarget(DriveSubsystem driveSubsystem, VisionSubsystem visionSubsystem) {

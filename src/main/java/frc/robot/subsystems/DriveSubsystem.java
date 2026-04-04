@@ -136,6 +136,27 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   /**
+   * Method to drive the robot using ChassisSpeeds.
+   *
+   * @param speeds        The desired chassis speeds.
+   * @param fieldRelative Whether the provided speeds are relative to the field.
+   */
+  public void drive(ChassisSpeeds speeds, boolean fieldRelative) {
+    if (fieldRelative) {
+      speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getPose().getRotation());
+    }
+
+    var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds);
+    SwerveDriveKinematics.desaturateWheelSpeeds(
+        swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
+    
+    m_frontLeft.setDesiredState(swerveModuleStates[0]);
+    m_frontRight.setDesiredState(swerveModuleStates[1]);
+    m_rearLeft.setDesiredState(swerveModuleStates[2]);
+    m_rearRight.setDesiredState(swerveModuleStates[3]);
+  }
+
+  /**
    * Method to drive the robot using joystick info.
    *
    * @param xSpeed        Speed of the robot in the x direction (forward).
@@ -225,6 +246,24 @@ public class DriveSubsystem extends SubsystemBase {
     // Note: This only zeroes the internal odometry rotation,
     // it doesn't reset the physical gyro on the Pi.
     resetOdometry(new Pose2d(getPose().getTranslation(), new Rotation2d()));
+  }
+
+  /**
+   * Returns the max linear speed of the robot.
+   *
+   * @return The max linear speed in meters per second.
+   */
+  public double getMaxLinearSpeedMetersPerSec() {
+    return DriveConstants.kMaxSpeedMetersPerSecond;
+  }
+
+  /**
+   * Returns the max angular speed of the robot.
+   *
+   * @return The max angular speed in radians per second.
+   */
+  public double getMaxAngularSpeedRadPerSec() {
+    return DriveConstants.kMaxAngularSpeed;
   }
 
   /**

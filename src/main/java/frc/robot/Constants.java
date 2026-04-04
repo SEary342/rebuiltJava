@@ -26,7 +26,7 @@ public final class Constants {
   public static final class DriveConstants {
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
-    public static final double kMaxSpeedMetersPerSecond = 1.5;  //4.8;/1 did nothing TODO figure out what this is/ 
+    public static final double kMaxSpeedMetersPerSecond = 4.8;
     public static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
 
     // Chassis configuration
@@ -79,7 +79,6 @@ public final class Constants {
 
   public static final class FuelConstants {
     // Motor controller IDs for Fuel Mechanism motors
-    // TODO change the motor ids on the superstructure
     public static final int LEFT_INTAKE_LAUNCHER_MOTOR_ID = 15;
     public static final int RIGHT_INTAKE_LAUNCHER_MOTOR_ID = 16;
     public static final int INDEXER_MOTOR_ID = 18;
@@ -157,16 +156,34 @@ public final class Constants {
   }
 
   public static final class OperatorConstants {
-
-    // Port constants for driver and operator controllers. These should match the
-    // values in the Joystick tab of the Driver Station software
     public static final int DRIVER_CONTROLLER_PORT = 0;
     public static final int OPERATOR_CONTROLLER_PORT = 1;
-    public static final double kDriveDeadband = 0.05;
+    public static final int FLIGHT_JOYSTICK_PORT = 3;
+    
+    // Legacy slew rates (for reference, being replaced by InputConstants)
     public static final double XY_SLEW_RATE = 0.3;
     public static final double ROT_SLEW_RATE = 0.3;
-    public static final double SPEED_LIMIT = 0.25;//0.4 default, 0.1 tooo slow //0.25 is closer
-    public static final double TURN_SPEED_LIMIT = 0.01;
+    
+    // Teleop scaling coefficients
+    public static final double SPEED_LIMIT = 0.4; // 40% of max speed
+    public static final double TURN_SPEED_LIMIT = 0.4; // 40% of max rotation
+  }
+
+  public static final class InputConstants {
+    public static final double kJoystickDeadband = 0.15;
+    public static final double kLinearExponent = 2.0;
+    public static final double kAngularExponent = 2.0;
+
+    // Asymmetric Slew rates: units per second (max change in speed per second)
+    // Moderate acceleration prevents "twitchy" behavior
+    // High deceleration allows for a "snappy" stop
+    public static final double kLinearAccelerationLimit = 2.0; 
+    public static final double kLinearDecelerationLimit = -8.0; 
+    
+    public static final double kAngularAccelerationLimit = 2.5;
+    public static final double kAngularDecelerationLimit = -8.0;
+
+    public static final double kSlowModeModifier = 0.4; // 40% speed for precision
   }
 
   public static final class AutoConstants {
