@@ -85,56 +85,66 @@ class LEDController:
 
 
 def run_service():
-    # 1. NetworkTables Setup
     inst = ntcore.NetworkTableInstance.getDefault()
-    # inst.setServer('192.168.1.117')
-    inst.setServerTeam(TEAM_NUMBER)
-    inst.startClient4("LED_Pi")
-
-    table = inst.getTable("LEDs")
-    # Subscribe to "state", default to "OFF"
-    state_sub = table.getStringTopic("state").subscribe("OFF")
-
-    # Subscribe to Vision Target status and Robot Mode from SmartDashboard
-    sd_table = inst.getTable("SmartDashboard")
-    has_target_sub = sd_table.getBooleanTopic("Vision/HasTarget").subscribe(False)
-    mode_sub = sd_table.getStringTopic("RobotMode").subscribe("DISABLED")
-
-    # 2. Start LED Controller
     controller = LEDController()
 
-    # Run animation loop in a separate thread so NT remains responsive
+    # Start animation thread immediately so LEDs show "OFF" or a "BOOT" color
     anim_thread = threading.Thread(target=controller.run_loop, daemon=True)
     anim_thread.start()
 
-    print(f"LED Service Listening for Team {TEAM_NUMBER}...")
+    # 1. Setup NetworkTables
+    inst.setServerTeam(TEAM_NUMBER)
+    # inst.setServer("192.168.1.15") # Use for laptop testing
+    inst.startClient4("LED_Pi")
+
+    # 2. Use a Connection Listener
+    # This helps us know if we are actually talking to the robot
+    def on_connection(event):
+        # We use the .is_() method with the bitmask flags
+        # This is the most stable way across different RobotPy versions
+        if event.is_(ntcore.EventFlags.kConnected):
+            print("Connected to RoboRIO!")
+        elif event.is_(ntcore.EventFlags.kDisconnected):
+            print("Disconnected from RoboRIO - Waiting...")
+            controller.set_state("PURPLE")
+
+    inst.addConnectionListener(True, on_connection)
+
+    # 3. Setup Tables and Subscriptions
+    table = inst.getTable("LEDs")
+    sd_table = inst.getTable("SmartDashboard")
+
+    state_sub = table.getStringTopic("state").subscribe("OFF")
+    has_target_sub = sd_table.getBooleanTopic("Vision/HasTarget").subscribe(False)
+    mode_sub = sd_table.getStringTopic("RobotMode").subscribe("DISABLED")
+
+    print(f"LED Service active. Waiting for Team {TEAM_NUMBER}...")
 
     while True:
-        has_target = has_target_sub.get()
-        robot_mode = mode_sub.get()
-        manual_state = state_sub.get()
+        # Check if we are connected before processing logic
+        if inst.isConnected():
+            has_target = has_target_sub.get()
+            robot_mode = mode_sub.get()
+            manual_state = state_sub.get()
 
-        # Priority Logic:
-        # 1. Disabled -> Solid RED
-        # 2. Auton -> Solid YELLOW (Blink if target)
-        # 3. Teleop -> Solid GREEN (Blink if target)
-        # 4. Manual -> manual_state
+            # Priority Logic
+            if robot_mode == "DISABLED":
+                target_state = "RED"
+            elif robot_mode == "AUTON":
+                target_state = "BLINK_YELLOW" if has_target else "YELLOW"
+            elif robot_mode == "TELEOP":
+                target_state = "BLINK_GREEN" if has_target else "GREEN"
+            else:
+                target_state = manual_state
 
-        if robot_mode == "DISABLED":
-            target_state = "RED"
-        elif robot_mode == "AUTON":
-            target_state = "BLINK_YELLOW" if has_target else "YELLOW"
-        elif robot_mode == "TELEOP":
-            target_state = "BLINK_GREEN" if has_target else "GREEN"
+            if target_state != controller.current_state:
+                controller.set_state(target_state)
         else:
-            # Fallback to manual state from NetworkTables
-            target_state = manual_state
+            # If not connected, we can pulse Red or stay in the last state
+            # This prevents the code from crashing if the tables aren't ready
+            pass
 
-        # Update the controller state if it changed
-        if target_state != controller.current_state:
-            print(f"Switching to state: {target_state} (Mode: {robot_mode}, Target: {has_target})")
-            controller.set_state(target_state)
-        time.sleep(0.05)
+        time.sleep(0.1) # Slightly slower poll rate to save CPU
 
 
 if __name__ == "__main__":
