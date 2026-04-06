@@ -1,38 +1,56 @@
 #!/bin/bash
 
-echo "--- Installing LED Service Dependencies ---"
+# Exit on any error
+set -e
+
+echo "--- 🛠️ Starting LED Service Installation ---"
+
+# 1. System Dependencies
 sudo apt-get update
 sudo apt-get install -y python3-pip curl
 
-# Install UV for fast env management (similar to your gyro setup)
+# 2. Install UV (if missing)
 if ! command -v uv &> /dev/null; then
+    echo "Installing uv..."
     curl -LsSf https://astral.sh/uv/install.sh | sh
-    export PATH="$HOME/.local/bin:$PATH"
+    source $HOME/.cargo/env
 fi
 
+# 3. Configure Hardware (Disable Audio for PWM)
+# Required for NeoPixel control on GPIO 18
+CONFIG_PATH="/boot/firmware/config.txt"
+[ ! -f "$CONFIG_PATH" ] && CONFIG_PATH="/boot/config.txt"
+
+if grep -q "dtparam=audio=on" "$CONFIG_PATH"; then
+    echo "Disabling onboard audio to free up PWM for LEDs..."
+    sudo sed -i 's/dtparam=audio=on/dtparam=audio=off/' "$CONFIG_PATH"
+    echo "⚠️ Hardware change detected. YOU MUST REBOOT after this script finishes."
+fi
+
+# 4. Project Setup
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "$DIR"
 
-# Setup environment
-uv venv
-source .venv/bin/python
-uv pip install adafruit-circuitpython-neopixel robotpy-ntcore
+echo "Syncing dependencies with uv..."
+# Creates .venv and installs everything in pyproject.toml
+uv sync
 
-# Setup Systemd Service
+# 5. Copy and Enable Systemd Service
 SERVICE_FILE="led.service"
+
 if [ -f "$SERVICE_FILE" ]; then
-    # Update paths in the service file
-    sed -i "s|WorkingDirectory=.*|WorkingDirectory=$DIR|" "$SERVICE_FILE"
-    sed -i "s|ExecStart=.*|ExecStart=$DIR/.venv/bin/python led_service.py|" "$SERVICE_FILE"
-    
+    echo "Installing $SERVICE_FILE..."
     sudo cp "$SERVICE_FILE" /etc/systemd/system/
     sudo systemctl daemon-reload
     sudo systemctl enable led.service
-    sudo systemctl start led.service
+    sudo systemctl restart led.service
     echo "Service 'led.service' installed and started."
 else
-    echo "Error: led.service not found."
+    echo "❌ Error: $SERVICE_FILE not found in the current directory."
+    exit 1
 fi
 
-echo "Installation Complete."
-echo "To test from the robot, set the 'LEDs/state' NetworkTable string."
+echo "-----------------------------------------------"
+echo "✅ Installation Complete."
+echo "Current Status: $(sudo systemctl is-active led.service)"
+echo "-----------------------------------------------"
