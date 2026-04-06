@@ -89,13 +89,13 @@ public final class Constants {
     public static final int LAUNCHER_MOTOR_CURRENT_LIMIT = 80;
 
     // All values likely need to be tuned based on your robot
-    public static final double INDEXER_INTAKING_PERCENT = -.8;
+    public static final double INDEXER_INTAKING_PERCENT = -.6;
     public static final double INDEXER_LAUNCHING_PERCENT = 0.6;
     public static final double INDEXER_SPIN_UP_PRE_LAUNCH_PERCENT = -0.5;
 
     public static final double INTAKE_INTAKING_PERCENT = 0.6;
     public static final double LAUNCHING_LAUNCHER_PERCENT = .85;
-    public static final double INTAKE_EJECT_PERCENT = -0.8;
+    public static final double INTAKE_EJECT_PERCENT = -0.6;
 
     public static final double SPIN_UP_SECONDS = 0.75;
 
@@ -133,12 +133,14 @@ public final class Constants {
     // RPM Lookup Table: {Distance in Meters, Launcher RPM}
     // This will be calibrated on the final robot.
     public static final double[][] kRPMTable = {
-        {0.5, 1500},
-        {1.0, 2000},
-        {1.5, 2500},
-        {2.0, 3000},
-        {2.5, 3500},
-        {3.0, 4000},
+        {0.5, 500},
+        {0.6, 1000},
+        {0.7, 1500},
+        {1.0, 1800},
+        {1.5, 2000}, // set
+        {2.0, 2200},
+        {2.5, 2500}, // set
+        {3.0, 4000}, // ran out of room
         {3.5, 4500},
         {4.0, 5000},
         {4.5, 5500},
