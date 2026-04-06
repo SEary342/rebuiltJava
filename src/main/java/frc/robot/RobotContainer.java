@@ -58,9 +58,9 @@ public class RobotContainer {
       OPERATOR_CONTROLLER_PORT);
   private final CommandXboxController[] controllers = { driverController, operatorController };
 
-  private final SlewRateLimiter xLimiter = new SlewRateLimiter(XY_SLEW_RATE);
-  private final SlewRateLimiter yLimiter = new SlewRateLimiter(XY_SLEW_RATE);
-  private final SlewRateLimiter rotLimiter = new SlewRateLimiter(ROT_SLEW_RATE);
+  private final SlewRateLimiter xLimiter = new SlewRateLimiter(XY_SLEW_RATE, XY_ZERO_SLEW_RATE, 0);
+  private final SlewRateLimiter yLimiter = new SlewRateLimiter(XY_SLEW_RATE, XY_ZERO_SLEW_RATE, 0);
+  private final SlewRateLimiter rotLimiter = new SlewRateLimiter(ROT_SLEW_RATE, ROT_ZERO_SLEW_RATE, 0);
 
   // The autonomous chooser
   private final SendableChooser<Command> autoChooser;
