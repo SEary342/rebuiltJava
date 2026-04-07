@@ -133,8 +133,8 @@ public final class Constants {
     // RPM Lookup Table: {Distance in Meters, Launcher RPM}
     // This will be calibrated on the final robot.
     public static final double[][] kRPMTable = {
-        {0.5, 500},
-        {0.6, 1000},
+        //{0.5, 500}, // will not throw ball
+        // {0.6, 1000}, // will not throw ball. 
         {0.7, 1500},
         {1.0, 1800},
         {1.5, 2000}, // set
