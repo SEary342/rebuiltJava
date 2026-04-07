@@ -26,10 +26,9 @@ public class SpinUp extends Command {
     // SME20260407: If the camera isn't connected, then we end up with zero as the rpm supplier, which causes the launcher to not ramp.  stop. To prevent this, we can set a minimum RPM based on our RPM table.
     if (rpmSupplier < kRPMTable[0])
     {
-      rpmSupplier = kRPMTable[0]; // set to minimum as this could be that we are too close but also this is a save value. 
+      rpmSupplier = kRPMTable[0]; // set to minimum as this could be that we are too close but also this is a safe value. 
     }
-    this.rpmSupplier = rpmSupplier; 
-    
+
     addRequirements(fuelSystem);
   }
 
