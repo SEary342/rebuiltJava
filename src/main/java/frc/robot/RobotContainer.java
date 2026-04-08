@@ -117,15 +117,18 @@ public class RobotContainer {
     SmartDashboard.putNumber("Launcher/ManualRPMValue", TargetConstants.kRPMTable[manualRPMIndex][1]);
   }
 
-  private double applyDriverConfig(double ctlInput) {
+  private double applyDriverConfig(double ctlInput, double precisionMultiplier) {
     // Apply direction inversion
     ctlInput *= driveMultiplier;
-    
+
     // Square the inputs
     ctlInput = Math.copySign(ctlInput * ctlInput, ctlInput);
 
     // Apply Speed Limit
     ctlInput *= SPEED_LIMIT;
+
+    // Precision Multiplier
+    ctlInput *= precisionMultiplier;
 
     return ctlInput;
   }
@@ -188,21 +191,18 @@ public class RobotContainer {
           double xInput = -MathUtil.applyDeadband(driverController.getLeftX(), OperatorConstants.kDriveDeadband);
           double rotInput = -MathUtil.applyDeadband(driverController.getRightX(), OperatorConstants.kDriveDeadband);
 
-          yInput = applyDriverConfig(yInput);
-          xInput = applyDriverConfig(xInput);
-          rotInput = applyDriverConfig(rotInput);
+          // --- 2. APPLY DRIVER CONFIG ---
+          double precisionMultiplier = driverController.getLeftTriggerAxis() > 0.5 ? TURN_SPEED_LIMIT : 1.0;
+          yInput = applyDriverConfig(yInput, precisionMultiplier);
+          xInput = applyDriverConfig(xInput, precisionMultiplier);
+          rotInput = applyDriverConfig(rotInput, precisionMultiplier);
 
-          // --- 4. TRIGGER SLOW TURN ---
-          double slowTurn = (driverController.getLeftTriggerAxis() - driverController.getRightTriggerAxis())
-              * TURN_SPEED_LIMIT;
-          double combinedRot = MathUtil.clamp(rotInput + slowTurn, -1.0, 1.0);
-
-          // --- 5. LIMIT & DRIVE ---
+          // --- 3. LIMIT & DRIVE ---
           // Try Slew Rates between 1.5 and 2.5 now that inputs are squared
           driveSubsystem.drive(
               yLimiter.calculate(yInput),
               xLimiter.calculate(xInput),
-              rotLimiter.calculate(combinedRot),
+              rotLimiter.calculate(rotInput),
               true);
         },
         driveSubsystem));
