@@ -48,6 +48,7 @@ public class RobotContainer {
   // Launcher State
   private boolean isVisionRPMEnabled = true;
   private int manualRPMIndex = 0; // Index into TargetConstants.kRPMTable
+  private double driveMultiplier = 1.0;
 
   // The driver's controller
   private final CommandXboxController driverController = new CommandXboxController(
@@ -83,6 +84,10 @@ public class RobotContainer {
     SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
+  private void toggleDriveDirection() {
+    driveMultiplier *= -1.0;
+  }
+
   /**
    * Helper to get the currently selected launcher RPM based on toggle state.
    */
@@ -110,6 +115,19 @@ public class RobotContainer {
     SmartDashboard.putBoolean("Launcher/VisionModeEnabled", isVisionRPMEnabled);
     SmartDashboard.putNumber("Launcher/ManualRPMIndex", manualRPMIndex);
     SmartDashboard.putNumber("Launcher/ManualRPMValue", TargetConstants.kRPMTable[manualRPMIndex][1]);
+  }
+
+  private double applyDriverConfig(double ctlInput) {
+    // Apply direction inversion
+    ctlInput *= driveMultiplier;
+    
+    // Square the inputs
+    ctlInput = Math.copySign(ctlInput * ctlInput, ctlInput);
+
+    // Apply Speed Limit
+    ctlInput *= SPEED_LIMIT;
+
+    return ctlInput;
   }
 
   /**
@@ -149,6 +167,8 @@ public class RobotContainer {
     // X Button: Aim at target (rotate robot)
     driverController.x().whileTrue(new AimAtTarget(driveSubsystem, visionSubsystem));
 
+    driverController.back().onTrue((new InstantCommand(() -> toggleDriveDirection())));
+
     // Left Trigger: Parking Brakes (Set modules to X)
     driverController.b().whileTrue(new RunCommand(
         () -> driveSubsystem.setX(),
@@ -168,16 +188,9 @@ public class RobotContainer {
           double xInput = -MathUtil.applyDeadband(driverController.getLeftX(), OperatorConstants.kDriveDeadband);
           double rotInput = -MathUtil.applyDeadband(driverController.getRightX(), OperatorConstants.kDriveDeadband);
 
-          // --- 2. SQUARE THE INPUTS ---
-          // Math.copySign preserves the direction (+ or -) after squaring
-          yInput = Math.copySign(yInput * yInput, yInput);
-          xInput = Math.copySign(xInput * xInput, xInput);
-          rotInput = Math.copySign(rotInput * rotInput, rotInput);
-
-          // --- 3. APPLY SPEED LIMIT ---
-          yInput *= SPEED_LIMIT;
-          xInput *= SPEED_LIMIT;
-          rotInput *= SPEED_LIMIT;
+          yInput = applyDriverConfig(yInput);
+          xInput = applyDriverConfig(xInput);
+          rotInput = applyDriverConfig(rotInput);
 
           // --- 4. TRIGGER SLOW TURN ---
           double slowTurn = (driverController.getLeftTriggerAxis() - driverController.getRightTriggerAxis())

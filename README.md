@@ -29,6 +29,7 @@ The robot is controlled using two Logitech F310 controllers (Driver and Operator
 | **B Button** | **Parking Brake**: Applies parking brakes when held |
 | **Left Trigger** | **Parking Brake**: Sets swerve modules to an 'X' pattern to prevent sliding. |
 | **Start Button** | **Zero Gyro**: Resets the field-relative heading. |
+| **Back Button** | **Invert Driving direction** Front becomes back and back becomes front. |
 
 ---
 
