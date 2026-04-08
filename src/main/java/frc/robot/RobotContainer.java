@@ -17,14 +17,14 @@ import static frc.robot.Constants.OperatorConstants.*;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.TargetConstants;
 import frc.robot.commands.AimAtTarget;
-import frc.robot.commands.ClimbDown;
-import frc.robot.commands.ClimbUp;
+// import frc.robot.commands.ClimbDown;
+// import frc.robot.commands.ClimbUp;
 import frc.robot.commands.Eject;
 import frc.robot.commands.Intake;
 import frc.robot.commands.LaunchSequence;
 import frc.robot.commands.SubwooferShoot;
 import frc.robot.subsystems.CANFuelSubsystem;
-import frc.robot.subsystems.ClimberSubsystem;
+// import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
@@ -42,7 +42,7 @@ public class RobotContainer {
   // The robot's subsystems
   private final DriveSubsystem driveSubsystem = new DriveSubsystem();
   private final CANFuelSubsystem fuelSubsystem = new CANFuelSubsystem();
-  private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
+  //private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
   private final VisionSubsystem visionSubsystem = new VisionSubsystem();
 
   // Launcher State
@@ -125,10 +125,10 @@ public class RobotContainer {
       controller.a().whileTrue(new Eject(fuelSubsystem));
 
       // While the down arrow on the directional pad is held it will unclimb the robot
-      controller.povDown().whileTrue(new ClimbDown(climberSubsystem));
+      // controller.povDown().whileTrue(new ClimbDown(climberSubsystem));
 
       // While the up arrow on the directional pad is held it will cimb the robot
-      controller.povUp().whileTrue(new ClimbUp(climberSubsystem));
+      // controller.povUp().whileTrue(new ClimbUp(climberSubsystem));
 
       // Right Bumper: Launch Sequence using the current RPM (Vision or Manual)
       controller.rightBumper().whileTrue(new LaunchSequence(fuelSubsystem, this::getTargetRPM));
@@ -196,7 +196,7 @@ public class RobotContainer {
 
     fuelSubsystem.setDefaultCommand(fuelSubsystem.run(() -> fuelSubsystem.stop()));
 
-    climberSubsystem.setDefaultCommand(climberSubsystem.run(() -> climberSubsystem.stop()));
+    //climberSubsystem.setDefaultCommand(climberSubsystem.run(() -> climberSubsystem.stop()));
 
     // Initial Dashboard states
     updateLauncherDashboard();
