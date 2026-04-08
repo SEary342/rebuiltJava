@@ -197,8 +197,7 @@ public class RobotContainer {
           xInput = applyDriverConfig(xInput, precisionMultiplier);
           rotInput = applyDriverConfig(rotInput, precisionMultiplier);
 
-          // --- 3. LIMIT & DRIVE ---
-          // Try Slew Rates between 1.5 and 2.5 now that inputs are squared
+          // --- 3. DRIVE ---
           driveSubsystem.drive(
               yLimiter.calculate(yInput),
               xLimiter.calculate(xInput),
