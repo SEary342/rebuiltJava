@@ -93,13 +93,13 @@ public final class Constants {
     public static final double INDEXER_LAUNCHING_PERCENT = 0.6;
     public static final double INDEXER_SPIN_UP_PRE_LAUNCH_PERCENT = -0.5;
 
-    public static final double INTAKE_INTAKING_PERCENT = 0.6;
+    public static final double INTAKE_INTAKING_PERCENT = 0.4;
     public static final double LAUNCHING_LAUNCHER_PERCENT = .85;
-    public static final double INTAKE_EJECT_PERCENT = -0.6;
+    public static final double INTAKE_EJECT_PERCENT = -0.4;
 
     public static final double SPIN_UP_SECONDS = 0.75;
 
-    public static final double kDefaultRPM = 3500;
+    public static final double kDefaultRPM = 1500;
     public static final double kMaxRPM = 5500;
   }
 
