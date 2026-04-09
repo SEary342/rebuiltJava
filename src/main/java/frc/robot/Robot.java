@@ -63,13 +63,19 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run();
 
     // Publish Robot Mode to NetworkTables for LED and other coprocessors
-    String mode = "DISABLED";
-    if (isAutonomous()) {
+    String mode;
+
+    // Check if disabled first
+    if (isDisabled()) {
+      mode = "DISABLED";
+    } else if (isAutonomous()) {
       mode = "AUTON";
     } else if (isTeleop()) {
       mode = "TELEOP";
     } else if (isTest()) {
       mode = "TEST";
+    } else {
+      mode = "UNKNOWN";
     }
     SmartDashboard.putString("RobotMode", mode);
   }
@@ -93,7 +99,7 @@ public class Robot extends TimedRobot {
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
-     CommandScheduler.getInstance().schedule(m_autonomousCommand);
+      CommandScheduler.getInstance().schedule(m_autonomousCommand);
     }
   }
 
