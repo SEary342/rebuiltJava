@@ -85,8 +85,8 @@ public final class Constants {
     public static final int INDEXER_MOTOR_ID = 18;
 
     // Current limit for fuel mechanism motors.
-    public static final int INDEXER_MOTOR_CURRENT_LIMIT = 80;
-    public static final int LAUNCHER_MOTOR_CURRENT_LIMIT = 80;
+    public static final int INDEXER_MOTOR_CURRENT_LIMIT = 40;
+    public static final int LAUNCHER_MOTOR_CURRENT_LIMIT = 40;
 
     // All values likely need to be tuned based on your robot
     public static final double INDEXER_INTAKING_PERCENT = -.6;
