@@ -8,7 +8,7 @@ import java.util.stream.IntStream;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
+// import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 
 /**
@@ -26,13 +26,13 @@ public final class Constants {
   public static final class DriveConstants {
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
-    public static final double kMaxSpeedMetersPerSecond = 4.8;  //4.8;/1 did nothing TODO figure out what this is/ 
+    public static final double kMaxSpeedMetersPerSecond = 4.8; // 4.8;/1 did nothing TODO figure out what this is/
     public static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
 
     // Chassis configuration
-    public static final double kTrackWidth = Units.inchesToMeters(26.5);
+    public static final double kTrackWidth = Units.inchesToMeters(29.0);
     // Distance between centers of right and left wheels on robot
-    public static final double kWheelBase = Units.inchesToMeters(26.5);
+    public static final double kWheelBase = Units.inchesToMeters(25.0);
     // Distance between front and back wheels on robot
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
         new Translation2d(kWheelBase / 2, kTrackWidth / 2),
@@ -68,7 +68,7 @@ public final class Constants {
 
     // Calculations required for driving motor conversion factors and feed forward
     public static final double kDrivingMotorFreeSpeedRps = NeoMotorConstants.kFreeSpeedRpm / 60;
-    public static final double kWheelDiameterMeters = 0.0762;
+    public static final double kWheelDiameterMeters = 0.06;
     public static final double kWheelCircumferenceMeters = kWheelDiameterMeters * Math.PI;
     // 45 teeth on the wheel's bevel gear, 22 teeth on the first-stage spur gear, 15
     // teeth on the bevel pinion
@@ -107,15 +107,16 @@ public final class Constants {
     public static final String kCameraName = "Arducam_OV9281_USB_Camera";
 
     // Camera position relative to robot center (meters)
-    public static final double kCameraXOffset = 0.25; // Example: 25cm forward from center
-    public static final double kCameraYOffset = 0.0;
-    public static final double kCameraZOffset = 0.5; // Example: 50cm above ground
+    // public static final double kCameraXOffset = 0.0; // Example: 25cm forward
+    // from center
+    // public static final double kCameraYOffset = 0.0;
+    public static final double kCameraZOffset = 0.48; // Example: 50cm above ground
 
     // Camera mounting angle (radians)
     // 80 degrees mounting plate (10 degrees off horizontal, pointing up)
-    public static final double kCameraPitch = Units.degreesToRadians(10);
-    public static final double kCameraYaw = 0.0;
-    public static final double kCameraRoll = 0.0;
+    public static final double kCameraPitch = Units.degreesToRadians(0);
+    // public static final double kCameraYaw = 0.0;
+    // public static final double kCameraRoll = 0.0;
 
     // Target height (meters)
     public static final double kTargetHeight = 1.83;
@@ -133,17 +134,17 @@ public final class Constants {
     // RPM Lookup Table: {Distance in Meters, Launcher RPM}
     // This will be calibrated on the final robot.
     public static final double[][] kRPMTable = {
-        //{0.5, 500}, // will not throw ball
-        // {0.6, 1000}, // will not throw ball. 
-        {0.7, 1500},
-        {1.0, 1800},
-        {1.5, 2000}, // set
-        {2.0, 2200},
-        {2.5, 2500}, // set
-        {3.0, 4000}, // ran out of room
-        {3.5, 4500},
-        {4.0, 5000},
-        {4.5, 5500},
+        // {0.5, 500}, // will not throw ball
+        // {0.6, 1000}, // will not throw ball.
+        { 0.7, 1500 },
+        { 1.0, 1800 },
+        { 1.5, 2000 }, // set
+        { 2.0, 2200 },
+        { 2.5, 2500 }, // set
+        { 3.0, 4000 }, // ran out of room
+        { 3.5, 4500 },
+        { 4.0, 5000 },
+        { 4.5, 5500 },
     };
   }
 
@@ -169,24 +170,27 @@ public final class Constants {
     public static final double XY_ZERO_SLEW_RATE = -0.5;
     public static final double ROT_SLEW_RATE = 0.3;
     public static final double ROT_ZERO_SLEW_RATE = -0.5;
-    public static final double SPEED_LIMIT = 0.25;//0.4 default, 0.1 tooo slow //0.25 is closer
+    public static final double SPEED_LIMIT = 0.25;// 0.4 default, 0.1 tooo slow //0.25 is closer
     public static final double TURN_SPEED_LIMIT = 0.01;
   }
 
-  public static final class AutoConstants {
-    public static final double kMaxSpeedMetersPerSecond = 3;
-    public static final double kMaxAccelerationMetersPerSecondSquared = 3;
-    public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI;
-    public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.PI;
-
-    public static final double kPXController = 1;
-    public static final double kPYController = 1;
-    public static final double kPThetaController = 1;
-
-    // Constraint for the motion profiled robot angle controller
-    public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
-        kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
-  }
+  /*
+   * public static final class AutoConstants {
+   * public static final double kMaxSpeedMetersPerSecond = 3;
+   * public static final double kMaxAccelerationMetersPerSecondSquared = 3;
+   * public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI;
+   * public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.PI;
+   * 
+   * public static final double kPXController = 1;
+   * public static final double kPYController = 1;
+   * public static final double kPThetaController = 1;
+   * 
+   * // Constraint for the motion profiled robot angle controller
+   * public static final TrapezoidProfile.Constraints kThetaControllerConstraints
+   * = new TrapezoidProfile.Constraints(
+   * kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
+   * }
+   */
 
   public static final class NeoMotorConstants {
     public static final double kFreeSpeedRpm = 5676;
