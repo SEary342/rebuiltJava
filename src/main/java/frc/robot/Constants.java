@@ -114,7 +114,7 @@ public final class Constants {
 
     // Camera mounting angle (radians)
     // 80 degrees mounting plate (10 degrees off horizontal, pointing up)
-    public static final double kCameraPitch = Units.degreesToRadians(0);
+    public static final double kCameraPitch = Units.degreesToRadians(20);
     // public static final double kCameraYaw = 0.0;
     // public static final double kCameraRoll = 0.0;
 
