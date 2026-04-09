@@ -18,7 +18,7 @@ import threading
 #
 # Note: Ensure the Pi GND and the LED Power Supply GND are connected.
 
-LED_COUNT = 60
+LED_COUNT = 82
 LED_PIN = board.D18  # GPIO 18 is best for WS2812B PWM timing
 BRIGHTNESS = 0.4  # 0.0 to 1.0
 TEAM_NUMBER = 9721
