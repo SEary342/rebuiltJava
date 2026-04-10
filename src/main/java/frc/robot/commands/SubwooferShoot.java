@@ -16,6 +16,6 @@ public class SubwooferShoot extends SequentialCommandGroup {
     public SubwooferShoot(CANFuelSubsystem fuelSubsystem) {
         // Shooting from subwoofer usually uses a fixed, calibrated RPM (3500)
         addCommands(
-                new LaunchSequence(fuelSubsystem, () -> 3500).withTimeout(10));
+                new LaunchSequence(fuelSubsystem, () -> 2200).withTimeout(10));
     }
 }
