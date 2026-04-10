@@ -174,7 +174,9 @@ public class RobotContainer {
     driverController.x().whileTrue(new AimAtTarget(driveSubsystem, visionSubsystem));
 
     driverController.back().onTrue((new InstantCommand(() -> toggleDriveDirection())));
-
+    driverController.rightTrigger()
+        .onTrue(new InstantCommand(() -> toggleDriveDirection()))
+        .onFalse(new InstantCommand(() -> toggleDriveDirection()));
     // Left Trigger: Parking Brakes (Set modules to X)
     driverController.b().whileTrue(new RunCommand(
         () -> driveSubsystem.setX(),
