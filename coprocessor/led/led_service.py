@@ -93,7 +93,7 @@ class LEDController:
         self.pixels.fill((0, 0, 0))
         
         # Draw a wider 5-pixel "eye" with smoother fade
-        for i in range(-2, 3):
+        for i in range(-5, 7):
             idx = self.scan_pos + i
             if 0 <= idx < LED_COUNT:
                 if i == 0:
