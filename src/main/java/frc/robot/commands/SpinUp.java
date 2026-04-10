@@ -7,7 +7,6 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CANFuelSubsystem;
 import static frc.robot.Constants.FuelConstants.*;
-import static frc.robot.Constants.TargetConstants.kRPMTable;
 
 import java.util.function.DoubleSupplier;
 
@@ -24,12 +23,7 @@ public class SpinUp extends Command {
    */
   public SpinUp(CANFuelSubsystem fuelSystem, DoubleSupplier rpmSupplier) {
     this.fuelSubsystem = fuelSystem;
-    final double minRPM = kRPMTable[0][1];
-
-    // SME20260407: If the camera isn't connected, then we end up with zero as the
-    // rpm supplier, which causes the launcher to not ramp. stop. To prevent this,
-    // we can set a minimum RPM based on our RPM table.
-    this.rpmSupplier = () -> Math.max(rpmSupplier.getAsDouble(), minRPM);
+    this.rpmSupplier = rpmSupplier;
 
     addRequirements(fuelSystem);
   }

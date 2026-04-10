@@ -7,7 +7,6 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CANFuelSubsystem;
 import static frc.robot.Constants.FuelConstants.*;
-import static frc.robot.Constants.TargetConstants.kRPMTable;
 
 import java.util.function.DoubleSupplier;
 
@@ -18,17 +17,14 @@ public class Launch extends Command {
 
   /**
    * Launch command that uses a dynamic RPM.
-   * @param fuelSystem The subsystem.
+   * 
+   * @param fuelSystem  The subsystem.
    * @param rpmSupplier A supplier for the target RPM.
    */
   public Launch(CANFuelSubsystem fuelSystem, DoubleSupplier rpmSupplier) {
     this.fuelSubsystem = fuelSystem;
-    final double minRPM = kRPMTable[0][1];
+    this.rpmSupplier = rpmSupplier;
 
-    // SME20260407: If the camera isn't connected, then we end up with zero as the
-    // rpm supplier, which causes the launcher to not ramp. stop. To prevent this,
-    // we can set a minimum RPM based on our RPM table.
-    this.rpmSupplier = () -> Math.max(rpmSupplier.getAsDouble(), minRPM);
     addRequirements(fuelSystem);
   }
 
@@ -43,7 +39,7 @@ public class Launch extends Command {
   public void initialize() {
     // Set launcher to target RPM
     fuelSubsystem.setLauncherRPM(rpmSupplier.getAsDouble());
-    
+
     // Set feeder roller to launching speed
     fuelSubsystem.setFeederRoller(INDEXER_LAUNCHING_PERCENT);
   }
