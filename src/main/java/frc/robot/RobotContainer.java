@@ -9,6 +9,7 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -21,7 +22,9 @@ import frc.robot.commands.AimAtTarget;
 // import frc.robot.commands.ClimbUp;
 import frc.robot.commands.Eject;
 import frc.robot.commands.Intake;
+import frc.robot.commands.Launch;
 import frc.robot.commands.LaunchSequence;
+import frc.robot.commands.SpinUp;
 import frc.robot.commands.SubwooferShoot;
 import frc.robot.subsystems.CANFuelSubsystem;
 // import frc.robot.subsystems.ClimberSubsystem;
@@ -42,11 +45,11 @@ public class RobotContainer {
   // The robot's subsystems
   private final DriveSubsystem driveSubsystem = new DriveSubsystem();
   private final CANFuelSubsystem fuelSubsystem = new CANFuelSubsystem();
-  //private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
+  // private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
   private final VisionSubsystem visionSubsystem = new VisionSubsystem();
 
   // Launcher State
-  private boolean isVisionRPMEnabled = true;
+  private boolean isVisionRPMEnabled = false;
   private int manualRPMIndex = 0; // Index into TargetConstants.kRPMTable
   private double driveMultiplier = 1.0;
 
@@ -208,7 +211,8 @@ public class RobotContainer {
 
     fuelSubsystem.setDefaultCommand(fuelSubsystem.run(() -> fuelSubsystem.stop()));
 
-    //climberSubsystem.setDefaultCommand(climberSubsystem.run(() -> climberSubsystem.stop()));
+    // climberSubsystem.setDefaultCommand(climberSubsystem.run(() ->
+    // climberSubsystem.stop()));
 
     // Initial Dashboard states
     updateLauncherDashboard();
@@ -220,7 +224,16 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
+    return Commands.sequence(
+        // 1. Spin up the motors while keeping the ball back (2 seconds)
+        new SpinUp(fuelSubsystem, () -> 2200.0).withTimeout(2.0),
+
+        // 2. Launch the ball (8 seconds)
+        new Launch(fuelSubsystem, () -> 2200.0).withTimeout(8.0),
+
+        // 3. Stop everything safely
+        Commands.runOnce(() -> fuelSubsystem.stop(), fuelSubsystem));
+    // return autoChooser.getSelected();
   }
 
   public DriveSubsystem getDriveSubsystem() {
