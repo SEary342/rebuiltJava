@@ -35,6 +35,18 @@ COLORS = {
     "WHITE": (255, 255, 255),
 }
 
+# --- Colorwheel helper for the rainbow effect ---
+def colorwheel(pos):
+    """Input a value 0 to 255 to get a color value."""
+    pos = int(pos) % 255
+    if pos < 85:
+        return (255 - pos * 3, pos * 3, 0)
+    if pos < 170:
+        pos -= 85
+        return (0, 255 - pos * 3, pos * 3)
+    pos -= 170
+    return (pos * 3, 0, 255 - pos * 3)
+
 
 class LEDController:
     def __init__(self):
@@ -47,24 +59,65 @@ class LEDController:
             auto_write=False,
             pixel_order=neopixel.GRB,
         )
-        self.current_state = "OFF"
+        self.current_state = "PURPLE"
         self._lock = threading.Lock()
+        
+        # State variables for animation tracking
+        self.scan_pos = 0
+        self.scan_dir = 1
+        self.rainbow_cycle = 0
 
     def set_state(self, state):
         with self._lock:
             self.current_state = state
+
+    def get_color(self, name):
+        """Centralized color manager to handle standard colors and RAINBOW."""
+        if name == "RAINBOW":
+            return colorwheel(self.rainbow_cycle)
+        return COLORS.get(name, COLORS["RED"])
 
     def _show_solid(self, color):
         self.pixels.fill(color)
         self.pixels.show()
 
     def _show_blink(self, color, speed=0.25):
-        self.pixels.fill(color)
+        # Non-blocking blink check based on current time
+        if (time.time() // speed) % 2 == 0:
+            self.pixels.fill(color)
+        else:
+            self.pixels.fill((0, 0, 0))
         self.pixels.show()
-        time.sleep(speed)
+
+    def _show_scan(self, color):
         self.pixels.fill((0, 0, 0))
+        
+        # Draw a wider 5-pixel "eye" with smoother fade
+        for i in range(-2, 3):
+            idx = self.scan_pos + i
+            if 0 <= idx < LED_COUNT:
+                if i == 0:
+                    self.pixels[idx] = color # Center pixel is full brightness
+                elif abs(i) == 1:
+                    self.pixels[idx] = (color[0]//2, color[1]//2, color[2]//2) # Inner edges
+                elif abs(i) == 2:
+                    self.pixels[idx] = (color[0]//10, color[1]//10, color[2]//10) # Outer edges
+
         self.pixels.show()
-        time.sleep(speed)
+
+        # Ping-pong the position
+        self.scan_pos += self.scan_dir
+        if self.scan_pos >= LED_COUNT - 1 or self.scan_pos <= 0:
+            self.scan_dir *= -1
+
+    def _show_rainbow_gradient(self):
+        """Calculates a gradient across the entire strip."""
+        for i in range(LED_COUNT):
+            # The '3' determines how many rainbows fit on the strip at once
+            # Higher number = more condensed rainbow
+            pixel_index = (i * 256 // LED_COUNT) + self.rainbow_cycle
+            self.pixels[i] = colorwheel(pixel_index & 255)
+        self.pixels.show()
 
     def run_loop(self):
         """Main animation loop."""
@@ -73,12 +126,20 @@ class LEDController:
             with self._lock:
                 state = self.current_state
 
-            if state.startswith("BLINK_"):
+            # Advance the global rainbow counter
+            self.rainbow_cycle = (self.rainbow_cycle + 2) % 255
+
+            if state == "RAINBOW":
+                self._show_rainbow_gradient()
+            elif state.startswith("BLINK_"):
                 color_name = state.replace("BLINK_", "")
-                self._show_blink(COLORS.get(color_name, COLORS["RED"]))
-            elif state != last_state:
-                # Only update solid colors if the state actually changed to save CPU
-                self._show_solid(COLORS.get(state, COLORS["OFF"]))
+                self._show_blink(self.get_color(color_name))
+            elif state.startswith("SCAN_"):
+                color_name = state.replace("SCAN_", "")
+                self._show_scan(self.get_color(color_name))
+            else:
+                # Fallback to solid color logic
+                self._show_solid(self.get_color(state))
 
             last_state = state
             time.sleep(0.05)
@@ -129,7 +190,7 @@ def run_service():
 
             # Priority Logic
             if robot_mode == "DISABLED":
-                target_state = "RED"
+                target_state = "SCAN_RED"
             elif robot_mode == "AUTON":
                 target_state = "BLINK_YELLOW" if has_target else "YELLOW"
             elif robot_mode == "TELEOP":
@@ -140,9 +201,7 @@ def run_service():
             if target_state != controller.current_state:
                 controller.set_state(target_state)
         else:
-            # If not connected, we can pulse Red or stay in the last state
-            # This prevents the code from crashing if the tables aren't ready
-            pass
+            controller.set_state("PURPLE")
 
         time.sleep(0.1) # Slightly slower poll rate to save CPU
 
