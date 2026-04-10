@@ -192,7 +192,7 @@ public class RobotContainer {
           double rotInput = -MathUtil.applyDeadband(driverController.getRightX(), OperatorConstants.kDriveDeadband);
 
           // --- 2. APPLY DRIVER CONFIG ---
-          double precisionMultiplier = driverController.getLeftTriggerAxis() > 0.5 ? TURN_SPEED_LIMIT : 1.0;
+          double precisionMultiplier = driverController.getLeftTriggerAxis() > 0.5 ? TURN_SPEED_LIMIT : 0.8;
           yInput = applyDriverConfig(yInput, precisionMultiplier);
           xInput = applyDriverConfig(xInput, precisionMultiplier);
           rotInput = applyDriverConfig(rotInput, precisionMultiplier);

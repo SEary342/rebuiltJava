@@ -172,8 +172,8 @@ public final class Constants {
     public static final double XY_ZERO_SLEW_RATE = -0.4;
     public static final double ROT_SLEW_RATE = 0.25;
     public static final double ROT_ZERO_SLEW_RATE = -0.4;
-    public static final double SPEED_LIMIT = 0.15;// 0.4 default, 0.1 tooo slow //0.25 is closer
-    public static final double TURN_SPEED_LIMIT = 0.01;
+    public static final double SPEED_LIMIT = 0.10;// 0.4 default, 0.1 tooo slow //0.25 is closer
+    public static final double TURN_SPEED_LIMIT = 0.10;
   }
 
   /*
