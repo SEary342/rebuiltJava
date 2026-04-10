@@ -168,11 +168,11 @@ public final class Constants {
     public static final int DRIVER_CONTROLLER_PORT = 0;
     public static final int OPERATOR_CONTROLLER_PORT = 1;
     public static final double kDriveDeadband = 0.10;
-    public static final double XY_SLEW_RATE = 0.3;
-    public static final double XY_ZERO_SLEW_RATE = -0.5;
-    public static final double ROT_SLEW_RATE = 0.3;
-    public static final double ROT_ZERO_SLEW_RATE = -0.5;
-    public static final double SPEED_LIMIT = 0.25;// 0.4 default, 0.1 tooo slow //0.25 is closer
+    public static final double XY_SLEW_RATE = 0.25;
+    public static final double XY_ZERO_SLEW_RATE = -0.4;
+    public static final double ROT_SLEW_RATE = 0.25;
+    public static final double ROT_ZERO_SLEW_RATE = -0.4;
+    public static final double SPEED_LIMIT = 0.15;// 0.4 default, 0.1 tooo slow //0.25 is closer
     public static final double TURN_SPEED_LIMIT = 0.01;
   }
 
