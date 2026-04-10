@@ -97,7 +97,6 @@ public class VisionSubsystem extends SubsystemBase {
      */
     public double getLauncherRPM(PhotonTrackedTarget target) {
         double distance = getDistanceToTargetMeters(target);
-        if (distance < 0) return 0;
 
         double[][] table = TargetConstants.kRPMTable;
         

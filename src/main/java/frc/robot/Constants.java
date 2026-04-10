@@ -136,15 +136,16 @@ public final class Constants {
     public static final double[][] kRPMTable = {
         // {0.5, 500}, // will not throw ball
         // {0.6, 1000}, // will not throw ball.
-        { 0.7, 1500 },
+        { 0.5, 1500 },
         { 1.0, 1800 },
         { 1.5, 2000 }, // set
-        { 2.0, 2200 },
-        { 2.5, 2500 }, // set
-        { 3.0, 4000 }, // ran out of room
-        { 3.5, 4500 },
-        { 4.0, 5000 },
-        { 4.5, 5500 },
+        { 3.98, 2200 }, //set
+        { 4.5, 2500 }, // set
+        { 5.0, 3500 }, // ran out of room
+        { 5.5, 4000 },
+        //{ 3.5, 4500 },
+        //{ 4.0, 5000 },
+        //{ 4.5, 5500 },
     };
   }
 
