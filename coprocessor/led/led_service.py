@@ -92,16 +92,25 @@ class LEDController:
     def _show_scan(self, color):
         self.pixels.fill((0, 0, 0))
         
-        # Draw a wider 5-pixel "eye" with smoother fade
-        for i in range(-5, 7):
+        # Width of the 'eye' (5 on each side of center = 11 pixels total)
+        # To get exactly 10, we'll use a range of 5
+        width = 5
+        
+        for i in range(-width, width + 1):
             idx = self.scan_pos + i
             if 0 <= idx < LED_COUNT:
-                if i == 0:
-                    self.pixels[idx] = color # Center pixel is full brightness
-                elif abs(i) == 1:
-                    self.pixels[idx] = (color[0]//2, color[1]//2, color[2]//2) # Inner edges
-                elif abs(i) == 2:
-                    self.pixels[idx] = (color[0]//10, color[1]//10, color[2]//10) # Outer edges
+                # Calculate brightness based on distance from center (0 to 1.0)
+                # Center (dist 0) = 1.0 brightness
+                # Edges (dist 5) = 0.1 brightness
+                distance = abs(i)
+                fade = 1.0 - (distance / (width + 1))
+                
+                new_color = (
+                    int(color[0] * fade),
+                    int(color[1] * fade),
+                    int(color[2] * fade)
+                )
+                self.pixels[idx] = new_color
 
         self.pixels.show()
 
@@ -121,7 +130,6 @@ class LEDController:
 
     def run_loop(self):
         """Main animation loop."""
-        last_state = None
         while True:
             with self._lock:
                 state = self.current_state
@@ -141,7 +149,6 @@ class LEDController:
                 # Fallback to solid color logic
                 self._show_solid(self.get_color(state))
 
-            last_state = state
             time.sleep(0.05)
 
 
