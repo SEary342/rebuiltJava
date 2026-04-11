@@ -228,11 +228,10 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     return Commands.sequence(
         // 1. Spin up the motors while keeping the ball back (2 seconds)
-        new SpinUp(fuelSubsystem, () -> 2200.0).withTimeout(2.0),
-
-        // 2. Launch the ball (8 seconds)
-        new Launch(fuelSubsystem, () -> 2200.0).withTimeout(8.0),
-
+        Commands.sequence(
+            Commands.repeatingSequence(new SpinUp(fuelSubsystem, () -> 2200.0).withTimeout(1.0),
+                new Launch(fuelSubsystem, () -> 2200.0).withTimeout(3.0)))
+            .withTimeout(19.99),
         // 3. Stop everything safely
         Commands.runOnce(() -> fuelSubsystem.stop(), fuelSubsystem));
     // return autoChooser.getSelected();

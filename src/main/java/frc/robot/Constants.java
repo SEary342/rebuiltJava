@@ -89,15 +89,15 @@ public final class Constants {
     public static final int LAUNCHER_MOTOR_CURRENT_LIMIT = 40;
 
     // All values likely need to be tuned based on your robot
-    public static final double INDEXER_INTAKING_PERCENT = -.6;
-    public static final double INDEXER_LAUNCHING_PERCENT = 0.6;
+    public static final double INDEXER_INTAKING_PERCENT = -0.6;
+    public static final double INDEXER_LAUNCHING_PERCENT = 0.5;
     public static final double INDEXER_SPIN_UP_PRE_LAUNCH_PERCENT = -0.5;
 
     public static final double INTAKE_INTAKING_PERCENT = 0.4;
     public static final double LAUNCHING_LAUNCHER_PERCENT = .85;
     public static final double INTAKE_EJECT_PERCENT = -0.4;
 
-    public static final double SPIN_UP_SECONDS = 1.2;
+    public static final double SPIN_UP_SECONDS = 1.0;
 
     public static final double kDefaultRPM = 1500;
     public static final double kMaxRPM = 5500;
@@ -140,13 +140,15 @@ public final class Constants {
         //{ 1.0, 1800 },
         //{ 1.5, 2000 }, // set
         { 3.98, 2200 }, //set
-        { 4.8, 2500 }, // set
+        { 4.0, 2400 },
+        { 4.8, 2600 }, // set
+        { 5.2, 2800 },
         { 5.4, 3000 }, // set
         { 6.0, 3200 }, // ran out of room
         { 6.5, 3500 },
         //{ 3.5, 4500 },
         //{ 4.0, 5000 },
-        //{ 4.5, 5500 },
+        //{ 4.5, 5500 }, // went through ceiling
     };
   }
 
