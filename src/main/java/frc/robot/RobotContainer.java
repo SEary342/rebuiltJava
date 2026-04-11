@@ -229,7 +229,7 @@ public class RobotContainer {
     return Commands.sequence(
         // 1. Spin up the motors while keeping the ball back (2 seconds)
         Commands.sequence(
-            Commands.repeatingSequence(new SpinUp(fuelSubsystem, () -> 2200.0).withTimeout(1.0),
+            Commands.repeatingSequence(new SpinUp(fuelSubsystem, () -> 2200.0).withTimeout(1.5),
                 new Launch(fuelSubsystem, () -> 2200.0).withTimeout(3.0)))
             .withTimeout(19.99),
         // 3. Stop everything safely
